@@ -3,10 +3,19 @@ project(linux C)
 
 set(CMAKE_C_STANDARD 99)
 
+# ------------------------------------------------------------------------------
+file(
+        GLOB_RECURSE lib_sources RELATIVE ${PROJECT_SOURCE_DIR}
+        src/lib/*/*.h
+        src/lib/*/*.c
+)
+include_directories(${PROJECT_SOURCE_DIR}/src)
+
+# ------------------------------------------------------------------------------
 # dynamically build all folders under "src/cmd" into "bin"
 # and keep the relative path of the binaries under "bin" same with "src/cmd".
-file(GLOB_RECURSE source_files RELATIVE ${PROJECT_SOURCE_DIR} src/cmd/*/*.c)
-foreach (source_file ${source_files})
+file(GLOB_RECURSE app_sources RELATIVE ${PROJECT_SOURCE_DIR} src/cmd/*/*.c)
+foreach (source_file ${app_sources})
   # get absolute path of parent folder of the source file into EXE_NAME
   get_filename_component(source_dir ${source_file} DIRECTORY)
   # get only the parent folder name, which is what we want.
@@ -17,14 +26,15 @@ foreach (source_file ${source_files})
   get_filename_component(cmd_parent ${source_dir} DIRECTORY)
   string(REGEX REPLACE "src/cmd/?" "" bin_subdir ${cmd_parent})
 
-  add_executable(${cmd} ${source_file})
+  add_executable(${cmd} ${source_file} ${lib_sources})
   set_target_properties(
           ${cmd}
           PROPERTIES
           RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/${bin_subdir}"
   )
-endforeach (source_file ${source_files})
+endforeach (source_file ${app_sources})
 
+# ------------------------------------------------------------------------------
 # custom make clean-all to remove all cmake generated files
 add_custom_target(
         clean-all
