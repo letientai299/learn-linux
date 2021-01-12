@@ -8,3 +8,4 @@ Testing/
 Makefile
 _deps/
 CPM_modules/
+*.cmake

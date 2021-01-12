@@ -1,8 +1,10 @@
 cmake_minimum_required(VERSION 3.17)
-project(linux C)
 
-set(CMAKE_C_STANDARD 99)
+project(linux)
 
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_COLOR_MAKEFILE ON)
 
 # ------------------------------------------------------------------------------
 # config ccache for faster rebuild
@@ -23,10 +25,11 @@ include(cmake/CPM.cmake)
 set(CPM_SOURCE_CACHE ${PROJECT_SOURCE_DIR}/_deps)
 
 CPMAddPackage(
-        NAME check
-        GITHUB_REPOSITORY libcheck/check
-        GIT_TAG 0.15.2
+        NAME doctest
+        GITHUB_REPOSITORY onqtam/doctest
+        GIT_TAG 2.4.4
 )
+include(${doctest_SOURCE_DIR}/scripts/cmake/doctest.cmake)
 
 # ------------------------------------------------------------------------------
 # add all code under "src/lib" into to libraries.
@@ -53,13 +56,37 @@ foreach (source_file ${app_sources})
   string(REGEX REPLACE "src/cmd/?" "" bin_subdir ${cmd_parent})
 
   add_executable(${cmd} ${source_file} ${lib_sources})
-  target_link_libraries(${cmd} check)
+  target_link_libraries(${cmd} ${CPM_PACKAGES})
   set_target_properties(
           ${cmd}
           PROPERTIES
           RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/${bin_subdir}"
   )
 endforeach (source_file ${app_sources})
+
+
+# ------------------------------------------------------------------------------
+# config to run all tests in "test" folder
+# It also needs to understand we have code in source and test directories
+file(GLOB_RECURSE test_sources RELATIVE ${PROJECT_SOURCE_DIR} test/*.*)
+add_executable(tester ${test_sources})
+doctest_discover_tests(
+        tester
+        PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/test/"
+)
+enable_testing()
+target_link_libraries(tester ${CPM_PACKAGES})
+set_target_properties(
+        tester
+        PROPERTIES
+        RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/test/"
+)
+add_custom_target(
+        check
+        COMMAND CTEST_OUTPUT_ON_FAILURE=1 ${CMAKE_CTEST_COMMAND}
+        DEPENDS tester
+)
 
 # ------------------------------------------------------------------------------
 # custom make clean-all to remove all cmake generated files
@@ -74,7 +101,13 @@ add_custom_target(
         COMMAND rm -rf CMakeFiles
         COMMAND rm -rf cmake-build-*
         COMMAND rm -rf *.cbp
+        COMMAND rm -rf *.cmake
         COMMAND rm -rf Makefile
 )
 
 
+#get_cmake_property(_variableNames VARIABLES)
+#list(SORT _variableNames)
+#foreach (_variableName ${_variableNames})
+#  message(STATUS "${_variableName}=${${_variableName}}")
+#endforeach ()
