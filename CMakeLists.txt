@@ -3,7 +3,33 @@ project(linux C)
 
 set(CMAKE_C_STANDARD 99)
 
+
 # ------------------------------------------------------------------------------
+# config ccache for faster rebuild
+option(AUTO_CCACHE "Use ccache to speed up rebuilds" ON)
+find_program(CCACHE_PROGRAM ccache)
+if (CCACHE_PROGRAM AND ${AUTO_CCACHE})
+  message(STATUS "Using ${CCACHE_PROGRAM} as compiler launcher")
+  set(CMAKE_CXX_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+  # requires at least CMake 3.9 to be any use
+  set(CMAKE_CUDA_COMPILER_LAUNCHER "${CCACHE_PROGRAM}")
+endif ()
+
+# ------------------------------------------------------------------------------
+# config for external dependencies
+
+# config CPM package manager
+include(cmake/CPM.cmake)
+set(CPM_SOURCE_CACHE ${PROJECT_SOURCE_DIR}/_deps)
+
+CPMAddPackage(
+        NAME check
+        GITHUB_REPOSITORY libcheck/check
+        GIT_TAG 0.15.2
+)
+
+# ------------------------------------------------------------------------------
+# add all code under "src/lib" into to libraries.
 file(
         GLOB_RECURSE lib_sources RELATIVE ${PROJECT_SOURCE_DIR}
         src/lib/*/*.h
@@ -27,6 +53,7 @@ foreach (source_file ${app_sources})
   string(REGEX REPLACE "src/cmd/?" "" bin_subdir ${cmd_parent})
 
   add_executable(${cmd} ${source_file} ${lib_sources})
+  target_link_libraries(${cmd} check)
   set_target_properties(
           ${cmd}
           PROPERTIES
@@ -41,6 +68,7 @@ add_custom_target(
         COMMAND ${CMAKE_BUILD_TOOL} clean
         COMMAND rm cmake_install.cmake
         COMMAND rm CMakeCache.txt
+        COMMAND rm -rf CPM_modules
         COMMAND rm -rf Testing
         COMMAND rm -rf bin
         COMMAND rm -rf CMakeFiles
@@ -48,3 +76,5 @@ add_custom_target(
         COMMAND rm -rf *.cbp
         COMMAND rm -rf Makefile
 )
+
+

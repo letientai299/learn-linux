@@ -6,3 +6,5 @@ CMakeFiles/
 Testing/
 *.cbp
 Makefile
+_deps/
+CPM_modules/
