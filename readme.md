@@ -34,5 +34,8 @@ few [C++ test frameworks](https://www.jetbrains.com/help/clion/unit-testing-tuto
 I choose [doctest](https://github.com/onqtam/doctest) due to its fast
 compilation. At first, I want this repo to be pure C, but it's very hard to
 find and setting up a convenient workflow with those C testing frameworks I
-found, so I have to escape to C++. Main code will be in C, but test code is
-C++.
+found, so I have to escape to C++.
+
+Main code will be in C, but test code is C++, thus lib code need to be
+recompiled using a C++ compiler. This unfortunately leads to some compiler
+warning for treating C as C++.
