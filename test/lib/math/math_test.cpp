@@ -1,5 +1,10 @@
-#include "lib/math/math.h" // NOLINT(modernize-deprecated-headers)
 #include "doctest/doctest.h"
+
+extern "C" {
+#include "lib/math/math.h" // NOLINT(modernize-deprecated-headers)
+}
+
+
 
 TEST_CASE ("add") {
             CHECK(add(3, 4) == 7);

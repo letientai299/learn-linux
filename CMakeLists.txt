@@ -70,20 +70,7 @@ endforeach (source_file ${app_sources})
 
 # file all test sources
 file(GLOB_RECURSE test_sources RELATIVE ${PROJECT_SOURCE_DIR} test/*.*)
-file(
-        GLOB_RECURSE lib_copied_sources RELATIVE ${PROJECT_SOURCE_DIR}
-        bin/copied/*/*.c
-)
-set_source_files_properties(${lib_copied_sources} PROPERTIES LANGUAGE CXX)
-
-add_custom_target(
-        symlink
-        COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/bin/copied
-        COMMAND rsync -au --delete ${PROJECT_SOURCE_DIR}/src/lib ${PROJECT_SOURCE_DIR}/bin/copied/
-)
-
-add_executable(tester ${test_sources} ${lib_copied_sources})
-add_dependencies(tester symlink)
+add_executable(tester ${test_sources} ${lib_sources})
 
 target_link_libraries(tester ${CPM_PACKAGES})
 doctest_discover_tests(
@@ -103,7 +90,6 @@ set_target_properties(
 add_custom_target(
         check
         COMMAND CTEST_OUTPUT_ON_FAILURE=1 ${CMAKE_CTEST_COMMAND}
-        DEPENDS tester
 )
 
 # ------------------------------------------------------------------------------
