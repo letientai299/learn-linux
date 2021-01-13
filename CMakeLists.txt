@@ -70,18 +70,31 @@ endforeach (source_file ${app_sources})
 
 # file all test sources
 file(GLOB_RECURSE test_sources RELATIVE ${PROJECT_SOURCE_DIR} test/*.*)
+file(
+        GLOB_RECURSE lib_copied_sources RELATIVE ${PROJECT_SOURCE_DIR}
+        bin/copied/*/*.c
+)
+set_source_files_properties(${lib_copied_sources} PROPERTIES LANGUAGE CXX)
 
-# test code depends on lib code, but lib code is in C,
-# so it will cause symbols not found. We need to recompile them with CXX
-set_source_files_properties(${lib_sources} PROPERTIES LANGUAGE CXX)
-add_executable(tester ${test_sources} ${lib_sources})
+add_custom_target(
+        symlink
+        COMMAND mkdir -p ${PROJECT_SOURCE_DIR}/bin/copied
+        COMMAND rsync -au --delete ${PROJECT_SOURCE_DIR}/src/lib ${PROJECT_SOURCE_DIR}/bin/copied/
+)
+
+add_executable(tester ${test_sources} ${lib_copied_sources})
+add_dependencies(tester symlink)
+
 target_link_libraries(tester ${CPM_PACKAGES})
 doctest_discover_tests(
         tester
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/test/"
 )
+
+# enable ctest
 enable_testing()
+
 set_target_properties(
         tester
         PROPERTIES

@@ -37,5 +37,6 @@ find and setting up a convenient workflow with those C testing frameworks I
 found, so I have to escape to C++.
 
 Main code will be in C, but test code is C++, thus lib code need to be
-recompiled using a C++ compiler. This unfortunately leads to some compiler
-warning for treating C as C++.
+recompiled using a C++ compiler. This unfortunately leads to some shitty hack
+to copy lib code into `bin/copied` and recompile them using C++ (because I
+don't know how to config source language per make target).

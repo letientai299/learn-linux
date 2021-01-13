@@ -8,3 +8,7 @@ TEST_CASE ("add") {
 TEST_CASE ("sub") {
             CHECK(sub(3, 4) == -1);
 }
+
+TEST_CASE ("mul") {
+            CHECK(mul(3, 4) == 12);
+}
