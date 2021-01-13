@@ -1,4 +1,4 @@
-#include "lib/math/math.h"
+#include "lib/math/math.h" // NOLINT(modernize-deprecated-headers)
 
 int add(int a, int b) {
     return a + b;

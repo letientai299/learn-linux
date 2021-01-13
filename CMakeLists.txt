@@ -67,16 +67,21 @@ endforeach (source_file ${app_sources})
 
 # ------------------------------------------------------------------------------
 # config to run all tests in "test" folder
-# It also needs to understand we have code in source and test directories
+
+# file all test sources
 file(GLOB_RECURSE test_sources RELATIVE ${PROJECT_SOURCE_DIR} test/*.*)
-add_executable(tester ${test_sources})
+
+# test code depends on lib code, but lib code is in C,
+# so it will cause symbols not found. We need to recompile them with CXX
+set_source_files_properties(${lib_sources} PROPERTIES LANGUAGE CXX)
+add_executable(tester ${test_sources} ${lib_sources})
+target_link_libraries(tester ${CPM_PACKAGES})
 doctest_discover_tests(
         tester
         PROPERTIES
         RUNTIME_OUTPUT_DIRECTORY "${PROJECT_SOURCE_DIR}/bin/test/"
 )
 enable_testing()
-target_link_libraries(tester ${CPM_PACKAGES})
 set_target_properties(
         tester
         PROPERTIES

@@ -1,5 +1,5 @@
 #include <stdio.h>
-#include "lib/math/math.h"
+#include "lib/math/math.h" // NOLINT(modernize-deprecated-headers)
 #include "lib/hello/hi/hi.h"
 
 int main() {

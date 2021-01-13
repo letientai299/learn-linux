@@ -1,5 +1,10 @@
+#include "lib/math/math.h" // NOLINT(modernize-deprecated-headers)
 #include "doctest/doctest.h"
 
-TEST_CASE ("test in lib/math") {
-            CHECK(3 == 3);
+TEST_CASE ("add") {
+            CHECK(add(3, 4) == 7);
+}
+
+TEST_CASE ("sub") {
+            CHECK(sub(3, 4) == -1);
 }
